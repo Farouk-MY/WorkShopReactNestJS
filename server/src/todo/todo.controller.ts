@@ -1,34 +1,94 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { TodoService } from './todo.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiBody } from '@nestjs/swagger';
+import { PrismaService } from 'src/databaseConfig/prisma/prisma.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { TodoService } from './todo.service';
 
-@Controller('todo')
+@Controller('/api/todo')
 export class TodoController {
-  constructor(private readonly todoService: TodoService) {}
+  constructor(
+    private readonly todoService: TodoService,
+    private prisma: PrismaService,
+  ) {}
 
-  @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todoService.create(createTodoDto);
+  @Post('create')
+  @ApiBody({ type: CreateTodoDto })
+  async create(@Body() createTodoDto: CreateTodoDto) {
+    try {
+      const response = await this.todoService.create(createTodoDto);
+      return response;
+    } catch (error) {
+      throw new Error(
+        `problem occured while creating TODO! : ${error.message}`,
+      );
+    }
+  }
+
+  @Get('greeting')
+  async greeting() {
+    try {
+      const greeting =
+        "Welcome to the Todo App Hackers 👋😁 let's dive into Nestjs, Prisma, React, Postgres 💣";
+      return { data: greeting, status: 'success' };
+    } catch (error) {
+      throw new Error(`Failed to get greeting: ${error.message}`);
+    }
   }
 
   @Get()
-  findAll() {
-    return this.todoService.findAll();
+  async findAll() {
+    try {
+      const response = await this.todoService.findAll();
+      return response;
+    } catch (error) {
+      throw new Error(
+        `problem occured while fetching TODO! : ${error.message}`,
+      );
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todoService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    try {
+      const response = await this.todoService.findOne(+id);
+      return response;
+    } catch (error) {
+      throw new Error(
+        `problem occured while fetching TODO by id! : ${error.message}`,
+      );
+    }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return this.todoService.update(+id, updateTodoDto);
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
+    try {
+      const response = await this.todoService.update(+id, updateTodoDto);
+      return response;
+    } catch (error) {
+      throw new Error(
+        `problem occured while updating TODO! : ${error.message}`,
+      );
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todoService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      const response = await this.todoService.remove(+id);
+      return response;
+    } catch (error) {
+      throw new Error(
+        `problem occured while removing TODO! wiht id : ${id} \n error: ${error.message}`,
+      );
+    }
   }
 }
